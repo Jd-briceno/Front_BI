@@ -20,7 +20,7 @@ function DataAnalyst() {
         {/* Columna para el texto */}
         <Grid item xs={8}>
           <Typography variant="h5" gutterBottom>
-            Analista de Datos:
+            Analista de Datos
           </Typography>
         </Grid>
         {/* Columna para la imagen */}

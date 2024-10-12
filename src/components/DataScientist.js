@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Grid } from '@mui/material';
+import { Button, Typography, Container, Grid } from '@mui/material';
 
 function DataScientist() {
-  const [text, setText] = useState('');
+  const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
 
   const handleRetrain = () => {
-    // Aquí iría la lógica para reentrenar el modelo
-    alert('Modelo reentrenado con éxito.');
+    // Aquí iría la lógica para reentrenar el modelo con el archivo CSV
+    if (file) {
+      alert(`Modelo reentrenado con el archivo: ${file.name}`);
+    } else {
+      alert('Por favor, sube un archivo CSV antes de reentrenar el modelo.');
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const uploadedFile = event.target.files[0];
+    if (uploadedFile && uploadedFile.type === "text/csv") {
+      setFile(uploadedFile);
+    } else {
+      alert('Por favor, sube un archivo CSV válido.');
+      setFile(null);
+    }
   };
 
   return (
@@ -16,7 +30,7 @@ function DataScientist() {
         {/* Columna para el texto */}
         <Grid item xs={8}>
           <Typography variant="h5" gutterBottom>
-            Científico de Datos: Reentrenar el modelo
+            Científico de Datos
           </Typography>
         </Grid>
         {/* Columna para la imagen */}
@@ -29,18 +43,22 @@ function DataScientist() {
         </Grid>
       </Grid>
 
-      <TextField
-        fullWidth
-        label="Ingresa el texto para entrenar"
-        variant="outlined"
-        margin="normal"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+      <input
+        type="file"
+        accept=".csv"
+        onChange={handleFileChange}
+        style={{ marginTop: '20px', marginBottom: '20px' }}
       />
 
       <Button variant="contained" color="secondary" onClick={handleRetrain}>
         Reentrenar Modelo
       </Button>
+
+      {file && (
+        <Typography variant="subtitle1" marginTop={2}>
+          Archivo seleccionado: {file.name}
+        </Typography>
+      )}
     </Container>
   );
 }
