@@ -28,6 +28,7 @@ function DataScientist() {
         body: formData,
       });
       const data = await response.json();
+      console.log("Respuesta del servidor:", data); // Para depuración
       setResult(data);
     } catch (error) {
       console.error('Error:', error);
@@ -35,6 +36,20 @@ function DataScientist() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderMetrics = () => {
+    if (!result || !result.metrics) {
+      return <Typography color="error">No se pudieron obtener las métricas del modelo.</Typography>;
+    }
+
+    return (
+      <>
+        <Typography>Precision: {result.metrics.precision?.toFixed(4) || 'No disponible'}</Typography>
+        <Typography>Recall: {result.metrics.recall?.toFixed(4) || 'No disponible'}</Typography>
+        <Typography>F1 Score: {result.metrics.f1_score?.toFixed(4) || 'No disponible'}</Typography>
+      </>
+    );
   };
 
   return (
@@ -132,7 +147,10 @@ function DataScientist() {
           {result.error ? (
             <Typography color="error">{result.error}</Typography>
           ) : (
-            <Typography>{result.message}</Typography>
+            <>
+              <Typography>{result.message}</Typography>
+              {renderMetrics()}
+            </>
           )}
         </Paper>
       )}

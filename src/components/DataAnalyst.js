@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Grid, CircularProgress } from '@mui/material';
+import { TextField, Button, Typography, Container, Grid, CircularProgress, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function DataAnalyst() {
@@ -21,13 +21,23 @@ function DataAnalyst() {
       const data = await response.json();
       setResult({
         ods: `ODS ${data[0].prediction}`,
-        probability: `${(data[0].probability * 100).toFixed(2)}%`,
+        probability: data[0].probability,
       });
     } catch (error) {
       console.error('Error:', error);
       setResult({ error: 'Ocurrió un error al analizar el texto.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getRecommendation = (probability) => {
+    if (probability > 0.75) {
+      return "Alta confianza en la predicción. Se recomienda considerar esta clasificación para la toma de decisiones.";
+    } else if (probability > 0.5) {
+      return "Confianza moderada. Se sugiere revisar el contexto adicional antes de tomar decisiones basadas en esta clasificación.";
+    } else {
+      return "Baja confianza en la predicción. Se recomienda un análisis más detallado o considerar reclasificar el texto.";
     }
   };
 
@@ -55,6 +65,8 @@ function DataAnalyst() {
         margin="normal"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        multiline
+        rows={4}
       />
       <Button 
         variant="contained" 
@@ -74,8 +86,8 @@ function DataAnalyst() {
       </Button>
 
       {result && (
-        <div>
-          <Typography variant="h6" marginTop={2}>
+        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+          <Typography variant="h6" gutterBottom>
             Resultado:
           </Typography>
           {result.error ? (
@@ -83,10 +95,13 @@ function DataAnalyst() {
           ) : (
             <>
               <Typography>Clasificación: {result.ods}</Typography>
-              <Typography>Probabilidad: {result.probability}</Typography>
+              <Typography>Probabilidad: {(result.probability * 100).toFixed(2)}%</Typography>
+              <Typography variant="body2" style={{ marginTop: '10px' }}>
+                Recomendación: {getRecommendation(result.probability)}
+              </Typography>
             </>
           )}
-        </div>
+        </Paper>
       )}
     </Container>
   );
