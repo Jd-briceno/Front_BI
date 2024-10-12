@@ -1,29 +1,42 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Grid } from '@mui/material';
+import { TextField, Button, Typography, Container, Grid, CircularProgress } from '@mui/material';
 
 function DataAnalyst() {
   const [text, setText] = useState('');
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleAnalyze = () => {
-    // Aquí llamaría a tu modelo para obtener la clasificación ODS y probabilidad
-    setResult({
-      ods: 'ODS 3: Salud y bienestar',
-      probability: '85%',
-      metricas: 'no olvidar'
-    });
+  const handleAnalyze = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ texts: [{ Textos_espanol: text }] }),
+      });
+      const data = await response.json();
+      setResult({
+        ods: `ODS ${data[0].prediction}`,
+        probability: `${(data[0].probability * 100).toFixed(2)}%`,
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      setResult({ error: 'Ocurrió un error al analizar el texto.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container>
       <Grid container spacing={2} alignItems="center">
-        {/* Columna para el texto */}
         <Grid item xs={8}>
           <Typography variant="h5" gutterBottom>
             Analista de Datos
           </Typography>
         </Grid>
-        {/* Columna para la imagen */}
         <Grid item xs={4}>
           <img 
             src="/images/dataAnalysis.jpg" 
@@ -41,8 +54,13 @@ function DataAnalyst() {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <Button variant="contained" color="primary" onClick={handleAnalyze}>
-        Analizar
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={handleAnalyze}
+        disabled={loading}
+      >
+        {loading ? <CircularProgress size={24} /> : 'Analizar'}
       </Button>
 
       {result && (
@@ -50,9 +68,14 @@ function DataAnalyst() {
           <Typography variant="h6" marginTop={2}>
             Resultado:
           </Typography>
-          <Typography>Clasificación: {result.ods}</Typography>
-          <Typography>Probabilidad: {result.probability}</Typography>
-          <Typography>metricas: {result.metricas}</Typography>
+          {result.error ? (
+            <Typography color="error">{result.error}</Typography>
+          ) : (
+            <>
+              <Typography>Clasificación: {result.ods}</Typography>
+              <Typography>Probabilidad: {result.probability}</Typography>
+            </>
+          )}
         </div>
       )}
     </Container>

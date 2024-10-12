@@ -8,7 +8,6 @@ function Home() {
   return (
     <Container>
       <Grid container spacing={2} alignItems="center">
-        {/* Columna para el texto y los botones */}
         <Grid item xs={8}>
           <Typography variant="h4" gutterBottom>
             Bienvenido, seleccione su rol
@@ -26,7 +25,6 @@ function Home() {
             </Grid>
           </Grid>
         </Grid>
-        {/* Columna para la imagen */}
         <Grid item xs={4}>
           <img 
             src="/images/imgHome.png" 
