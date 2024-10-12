@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Container, Grid, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 function DataAnalyst() {
   const [text, setText] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -31,7 +33,7 @@ function DataAnalyst() {
 
   return (
     <Container>
-      <Grid container spacing={2} alignItems="center">
+      <Grid container spacing={2} alignItems="center" style={{ marginBottom: '20px' }}>
         <Grid item xs={8}>
           <Typography variant="h5" gutterBottom>
             Analista de Datos
@@ -59,8 +61,16 @@ function DataAnalyst() {
         color="primary" 
         onClick={handleAnalyze}
         disabled={loading}
+        style={{ marginRight: '10px' }}
       >
         {loading ? <CircularProgress size={24} /> : 'Analizar'}
+      </Button>
+      <Button 
+        variant="outlined" 
+        color="secondary" 
+        onClick={() => navigate('/')}
+      >
+        Regresar al Home
       </Button>
 
       {result && (

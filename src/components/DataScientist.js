@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
 import { Button, Typography, Container, Grid, CircularProgress } from '@mui/material';
-import * as XLSX from 'xlsx';
+import { useNavigate } from 'react-router-dom';
 
 function DataScientist() {
   const [file, setFile] = useState(null);
-  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const navigate = useNavigate();
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
 
-  const handleRetrain = async () => {
+  const handleRetrain = async (method) => {
     if (!file) {
       alert('Por favor, selecciona un archivo Excel antes de reentrenar.');
       return;
     }
 
     setLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const data = await readExcel(file);
-      const response = await fetch('http://localhost:8000/retrain', {
+      const response = await fetch(`http://localhost:8000/retrain_${method}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: formData,
       });
-      const result = await response.json();
-      setResult(result);
+      const data = await response.json();
+      setResult(data);
     } catch (error) {
       console.error('Error:', error);
       setResult({ error: error.message || 'Ocurrió un error al reentrenar el modelo.' });
@@ -37,29 +37,9 @@ function DataScientist() {
     }
   };
 
-  const readExcel = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet);
-        
-        const texts = json.map(row => ({ Textos_espanol: row.Textos_espanol }));
-        const labels = json.map(row => row.sdg);
-        
-        resolve({ texts, labels });
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(file);
-    });
-  };
-
   return (
     <Container>
-      <Grid container spacing={2} alignItems="center">
+      <Grid container spacing={2} alignItems="center" style={{ marginBottom: '20px' }}>
         <Grid item xs={8}>
           <Typography variant="h5" gutterBottom>
             Científico de Datos
@@ -81,14 +61,53 @@ function DataScientist() {
         style={{ marginTop: '20px', marginBottom: '20px' }}
       />
 
-      <Button 
-        variant="contained" 
-        color="secondary" 
-        onClick={handleRetrain}
-        disabled={loading}
-      >
-        {loading ? <CircularProgress size={24} /> : 'Reentrenar Modelo'}
-      </Button>
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => handleRetrain('replace')}
+            disabled={loading}
+            fullWidth
+          >
+            Reentrenar (Reemplazar)
+          </Button>
+        </Grid>
+        <Grid item xs={3}>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            onClick={() => handleRetrain('concatenate')}
+            disabled={loading}
+            fullWidth
+          >
+            Reentrenar (Concatenar)
+          </Button>
+        </Grid>
+        <Grid item xs={3}>
+          <Button 
+            variant="contained" 
+            color="info" 
+            onClick={() => handleRetrain('weighted')}
+            disabled={loading}
+            fullWidth
+          >
+            Reentrenar (Ponderado)
+          </Button>
+        </Grid>
+        <Grid item xs={3}>
+          <Button 
+            variant="outlined" 
+            color="secondary" 
+            onClick={() => navigate('/')}
+            fullWidth
+          >
+            Regresar al Home
+          </Button>
+        </Grid>
+      </Grid>
+
+      {loading && <CircularProgress style={{ marginTop: '20px' }} />}
 
       {file && (
         <Typography variant="subtitle1" marginTop={2}>
@@ -104,12 +123,7 @@ function DataScientist() {
           {result.error ? (
             <Typography color="error">{result.error}</Typography>
           ) : (
-            <>
-              <Typography>Mensaje: {result.message}</Typography>
-              <Typography>F1 Score: {result.metrics.f1_score.toFixed(4)}</Typography>
-              <Typography>Precision: {result.metrics.precision.toFixed(4)}</Typography>
-              <Typography>Recall: {result.metrics.recall.toFixed(4)}</Typography>
-            </>
+            <Typography>{result.message}</Typography>
           )}
         </div>
       )}
