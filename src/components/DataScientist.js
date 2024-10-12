@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Typography, Container, Grid, CircularProgress } from '@mui/material';
+import { Button, Typography, Container, Grid, CircularProgress, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function DataScientist() {
@@ -61,51 +61,60 @@ function DataScientist() {
         style={{ marginTop: '20px', marginBottom: '20px' }}
       />
 
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => handleRetrain('replace')}
-            disabled={loading}
-            fullWidth
-          >
-            Reentrenar (Reemplazar)
-          </Button>
+      <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+        <Typography variant="h6" gutterBottom>
+          Método Principal de Reentrenamiento
+        </Typography>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => handleRetrain('concatenate')}
+          disabled={loading}
+          fullWidth
+        >
+          Reentrenar (Concatenar)
+        </Button>
+      </Paper>
+
+      <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+        <Typography variant="h6" gutterBottom>
+          Métodos Alternativos Implementados ADICIONALES
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Button 
+              variant="outlined" 
+              color="secondary" 
+              onClick={() => handleRetrain('replace')}
+              disabled={loading}
+              fullWidth
+            >
+              Reentrenar (Reemplazar)
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button 
+              variant="outlined" 
+              color="info" 
+              onClick={() => handleRetrain('weighted')}
+              disabled={loading}
+              fullWidth
+            >
+              Reentrenar (Ponderado)
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={3}>
-          <Button 
-            variant="contained" 
-            color="secondary" 
-            onClick={() => handleRetrain('concatenate')}
-            disabled={loading}
-            fullWidth
-          >
-            Reentrenar (Concatenar)
-          </Button>
-        </Grid>
-        <Grid item xs={3}>
-          <Button 
-            variant="contained" 
-            color="info" 
-            onClick={() => handleRetrain('weighted')}
-            disabled={loading}
-            fullWidth
-          >
-            Reentrenar (Ponderado)
-          </Button>
-        </Grid>
-        <Grid item xs={3}>
-          <Button 
-            variant="outlined" 
-            color="secondary" 
-            onClick={() => navigate('/')}
-            fullWidth
-          >
-            Regresar al Home
-          </Button>
-        </Grid>
-      </Grid>
+      </Paper>
+
+      <Button 
+        variant="outlined" 
+        color="secondary" 
+        onClick={() => navigate('/')}
+        fullWidth
+        style={{ marginBottom: '20px' }}
+      >
+        Regresar al Home
+      </Button>
 
       {loading && <CircularProgress style={{ marginTop: '20px' }} />}
 
@@ -116,8 +125,8 @@ function DataScientist() {
       )}
 
       {result && (
-        <div>
-          <Typography variant="h6" marginTop={2}>
+        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+          <Typography variant="h6" gutterBottom>
             Resultado del reentrenamiento:
           </Typography>
           {result.error ? (
@@ -125,7 +134,7 @@ function DataScientist() {
           ) : (
             <Typography>{result.message}</Typography>
           )}
-        </div>
+        </Paper>
       )}
     </Container>
   );
